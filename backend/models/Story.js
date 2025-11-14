@@ -1,75 +1,62 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
+
+const vocabularySchema = new mongoose.Schema({
+  word: String,
+  kannada: String,
+  english: String,
+  pronunciation: String,
+});
+
+const choiceSchema = new mongoose.Schema({
+  text: String,
+  textKannada: String,
+  nextScene: Number,
+  xpReward: Number,
+  correctChoice: { type: Boolean, default: false },
+});
 
 const sceneSchema = new mongoose.Schema({
   order: Number,
   title: String,
   content: String,
   contentKannada: String,
-  imageUrl: String,
-  audioUrl: String,
-  
-  vocabulary: [{
-    word: String,
-    translation: String,
-    pronunciation: String
-  }],
-  
-  choices: [{
-    text: String,
-    textKannada: String,
-    nextScene: Number,
-    xpReward: Number
-  }]
+  mission: String, // Mission objective
+  imageEmoji: String, // Emoji for visual
+  vocabulary: [vocabularySchema],
+  choices: [choiceSchema],
+  learningOutcome: String, // What user learns
+  grammarTip: String, // Grammar explanation
 });
 
 const storySchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true
-  },
+  title: { type: String, required: true },
   titleKannada: String,
   description: String,
-  
-  location: {
+  mode: {
     type: String,
-    enum: ['mysore', 'bangalore', 'coorg', 'hampi', 'karnataka'],
-    required: true
+    enum: ["child", "adult", "parent"],
+    default: "adult",
   },
-  
   difficulty: {
     type: String,
-    enum: ['beginner', 'intermediate', 'advanced'],
-    default: 'beginner'
+    enum: ["beginner", "intermediate", "advanced"],
+    default: "beginner",
   },
-  
-  coverImage: String,
-  
+  location: {
+    type: String,
+    enum: ["mysore", "bangalore", "coorg", "hampi", "karnataka"],
+    required: true,
+  },
+  coverEmoji: String,
   scenes: [sceneSchema],
-  
   totalVocabulary: Number,
-  estimatedTime: Number, // in minutes
-  
-  xpReward: {
-    type: Number,
-    default: 100
-  },
-  
-  completionCount: {
-    type: Number,
-    default: 0
-  },
-  
-  isPublished: {
-    type: Boolean,
-    default: true
-  },
-  
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
+  estimatedTime: Number,
+  xpReward: { type: Number, default: 100 },
+  completionCount: { type: Number, default: 0 },
+  isPublished: { type: Boolean, default: true },
+  generatedByAI: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
 
-const Story = mongoose.model('Story', storySchema);
-
-export default Story;
+export default mongoose.model("Story", storySchema);

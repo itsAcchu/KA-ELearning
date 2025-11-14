@@ -1,58 +1,65 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
 
-export const useUserStore = create(
-  persist(
-    (set, get) => ({
-      xp: 0,
-      level: 1,
-      gems: 0,
-      streak: 0,
-      lastActivityDate: null,
-      lessonsCompleted: 0,
-      achievements: [],
-      dailyXP: 0,
-      
-      addXP: (amount) => {
-        const newXP = get().xp + amount;
-        const newLevel = Math.floor(newXP / 500) + 1;
-        const leveledUp = newLevel > get().level;
-        
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+
+export const useUserStore = create((set) => ({
+  xp: 0,
+  level: 1,
+  gems: 0,
+  streak: 0,
+  lessonsCompleted: 0,
+  totalStudyTime: 0,
+  dailyXP: 0,
+  dailyGoalXP: 50,
+  achievements: [],
+
+  // Fetch user data from backend
+  fetchUserData: async () => {
+    try {
+      const token = localStorage.getItem("kannada_auth_token");
+      if (!token) return;
+
+      // text (❌ removed)
+
+      const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
         set({
-          xp: newXP,
-          level: newLevel,
-          dailyXP: get().dailyXP + amount,
-          gems: leveledUp ? get().gems + 100 : get().gems,
+          xp: data.xp || 0,
+          level: data.level || 1,
+          gems: data.gems || 0,
+          streak: data.streak || 0,
+          lessonsCompleted: data.lessonsCompleted || 0,
+          totalStudyTime: data.totalStudyTime || 0,
+          dailyXP: data.dailyXP || 0,
+          dailyGoalXP: data.dailyGoalXP || 50,
+          achievements: data.achievements || [],
         });
-        
-        return { leveledUp, newLevel };
-      },
-      
-      updateStreak: () => {
-        const today = new Date().toDateString();
-        const last = get().lastActivityDate;
-        
-        if (!last || last !== today) {
-          const yesterday = new Date(Date.now() - 86400000).toDateString();
-          const newStreak = last === yesterday ? get().streak + 1 : 1;
-          set({ streak: newStreak, lastActivityDate: today });
-        }
-      },
-      
-      unlockAchievement: (id) => {
-        if (!get().achievements.includes(id)) {
-          set({
-            achievements: [...get().achievements, id],
-            gems: get().gems + 50,
-          });
-          return true;
-        }
-        return false;
-      },
-      
-      incrementLessons: () => set({ lessonsCompleted: get().lessonsCompleted + 1 }),
-      addGems: (amount) => set({ gems: get().gems + amount }),
-    }),
-    { name: 'kannada-user' }
-  )
-);
+      }
+    } catch (error) {
+      console.error("Failed to fetch user data:", error);
+    }
+  },
+
+  updateXP: (amount) => set((state) => ({ xp: state.xp + amount })),
+  updateLevel: (newLevel) => set({ level: newLevel }),
+  updateGems: (amount) => set((state) => ({ gems: state.gems + amount })),
+  updateStreak: (newStreak) => set({ streak: newStreak }),
+  incrementLessonsCompleted: () =>
+    set((state) => ({ lessonsCompleted: state.lessonsCompleted + 1 })),
+  updateDailyXP: (amount) =>
+    set((state) => ({ dailyXP: state.dailyXP + amount })),
+
+  resetDailyXP: () => set({ dailyXP: 0 }),
+  addAchievement: (achievement) =>
+    set((state) => ({
+      achievements: [...state.achievements, achievement],
+    })),
+}));
