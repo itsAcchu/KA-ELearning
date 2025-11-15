@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="kn">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Kannada Voice Coach — Premium</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        /* Premium color palette */
+        --primary: #2563eb;
+        --primary-light: #3b82f6;
+        --primary-dark: #1d4ed8;
+        --secondary: #7c3aed;
+        --accent: #06b6d4;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --error: #ef4444;
+
+        /* Neutral colors */
+        --white: #ffffff;
+        --gray-50: #f8fafc;
+        --gray-100: #f1f5f9;
+        --gray-200: #e2e8f0;
+        --gray-300: #cbd5e1;
+        --gray-400: #94a3b8;
+        --gray-500: #64748b;
+        --gray-600: #475569;
+        --gray-700: #334155;
+        --gray-800: #1e293b;
+        --gray-900: #0f172a;
+
+        /* Gradients */
+        --gradient-primary: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--secondary)
+        );
+        --gradient-accent: linear-gradient(
+          135deg,
+          var(--accent),
+          var(--primary-light)
+        );
+        --gradient-card: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.9),
+          rgba(255, 255, 255, 0.7)
+        );
+        --gradient-glass: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.25),
+          rgba(255, 255, 255, 0.15)
+        );
+
+        /* Shadows */
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+          0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+
+        /* Border radius */
+        --radius-sm: 6px;
+        --radius: 12px;
+        --radius-md: 16px;
+        --radius-lg: 20px;
+        --radius-xl: 24px;
+
+        /* Spacing */
+        --space-xs: 4px;
+        --space-sm: 8px;
+        --space: 16px;
+        --space-md: 24px;
+        --space-lg: 32px;
+        --space-xl: 48px;
+      }
+
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family: "Inter", ui-sans-serif, system-ui, -apple-system,
+          "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        color: var(--gray-800);
+        background: linear-gradient(
+          135deg,
+          #f0f9ff 0%,
+          #e0f2fe 50%,
+          #dbeafe 100%
+        );
+        line-height: 1.5;
+      }
+
+      .app {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: var(--space-md);
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: var(--space-md);
+        min-height: 100vh;
+        align-items: start;
+      }
+
+      .card {
+        background: var(--gradient-card);
+        backdrop-filter: blur(10px);
+        border-radius: var(--radius-lg);
+        padding: var(--space-md);
+        box-shadow: var(--shadow-lg);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        transition: all 0.3s ease;
+      }
+
+      .card:hover {
+        box-shadow: var(--shadow-xl);
+        transform: translateY(-2px);
+      }
+
+      header {
+        margin-bottom: var(--space-md);
+      }
+
+      .app-title {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        margin: 0 0 var(--space-xs) 0;
+        font-size: 28px;
+        font-weight: 800;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .app-subtitle {
+        margin: 0;
+        color: var(--gray-500);
+        font-size: 16px;
+        font-weight: 500;
+      }
+
+      .coachTop {
+        display: flex;
+        gap: var(--space);
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: var(--space-md);
+      }
+
+      .questionBox {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space);
+        padding: var(--space-lg);
+        border-radius: var(--radius-md);
+        background: var(--gradient-glass);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: var(--shadow-sm);
+        margin-bottom: var(--space-md);
+      }
+
+      .qLabel {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--gray-500);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .question {
+        font-size: 28px;
+        font-weight: 700;
+        line-height: 1.3;
+        color: var(--gray-800);
+        text-align: center;
+        padding: var(--space) 0;
+      }
+
+      .controls {
+        display: flex;
+        gap: var(--space-sm);
+        align-items: center;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        border-radius: var(--radius);
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.2),
+          rgba(255, 255, 255, 0)
+        );
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      .btn:hover::before {
+        opacity: 1;
+      }
+
+      .btn.primary {
+        background: var(--gradient-primary);
+        color: var(--white);
+        box-shadow: var(--shadow-md);
+      }
+
+      .btn.primary:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-2px);
+      }
+
+      .btn.secondary {
+        background: var(--white);
+        color: var(--primary);
+        border: 1px solid var(--gray-200);
+        box-shadow: var(--shadow-sm);
+      }
+
+      .btn.secondary:hover {
+        background: var(--gray-50);
+        box-shadow: var(--shadow);
+        transform: translateY(-1px);
+      }
+
+      .btn.accent {
+        background: var(--gradient-accent);
+        color: var(--white);
+        box-shadow: var(--shadow-md);
+      }
+
+      .listenBtn {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .listenBtn.listening {
+        animation: pulse 2s infinite;
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+      }
+
+      .resultRow {
+        display: flex;
+        gap: var(--space);
+        align-items: center;
+        justify-content: space-between;
+        margin-top: var(--space);
+      }
+
+      .scoreBox {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-xs);
+        align-items: flex-start;
+      }
+
+      .scoreValue {
+        font-size: 32px;
+        font-weight: 800;
+        color: var(--primary);
+      }
+
+      .statusText {
+        font-size: 14px;
+        color: var(--gray-500);
+      }
+
+      .statusCorrect {
+        color: var(--success);
+        font-weight: 700;
+      }
+
+      .statusWrong {
+        color: var(--error);
+        font-weight: 700;
+      }
+
+      .progress-container {
+        width: 100%;
+        margin-top: var(--space);
+      }
+
+      .progress-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: var(--space-xs);
+        font-size: 14px;
+        color: var(--gray-500);
+      }
+
+      .progress {
+        width: 100%;
+        height: 12px;
+        background: var(--gray-200);
+        border-radius: 999px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .progress > i {
+        display: block;
+        height: 100%;
+        width: 0%;
+        background: var(--gradient-primary);
+        border-radius: 999px;
+        transition: width 0.5s ease;
+        position: relative;
+      }
+
+      .progress > i::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.4),
+          transparent
+        );
+        animation: shimmer 2s infinite;
+      }
+
+      .footerNote {
+        font-size: 14px;
+        color: var(--gray-500);
+        margin-top: var(--space);
+        text-align: center;
+        font-style: italic;
+      }
+
+      .history {
+        margin-top: var(--space-md);
+      }
+
+      .history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--space);
+      }
+
+      .history-title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--gray-700);
+      }
+
+      .history-count {
+        font-size: 14px;
+        color: var(--gray-500);
+      }
+
+      .historyList {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-sm);
+        max-height: 260px;
+        overflow: auto;
+        padding-right: var(--space-sm);
+      }
+
+      .historyList::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .historyList::-webkit-scrollbar-track {
+        background: var(--gray-100);
+        border-radius: 10px;
+      }
+
+      .historyList::-webkit-scrollbar-thumb {
+        background: var(--gray-300);
+        border-radius: 10px;
+      }
+
+      .historyList::-webkit-scrollbar-thumb:hover {
+        background: var(--gray-400);
+      }
+
+      .histItem {
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        color: var(--gray-700);
+        padding: var(--space);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s ease;
+      }
+
+      .histItem:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow);
+      }
+
+      .histQuestion {
+        font-size: 14px;
+        color: var(--gray-600);
+        flex: 1;
+        margin-right: var(--space);
+      }
+
+      .histStats {
+        text-align: right;
+        min-width: 80px;
+      }
+
+      .histScore {
+        font-weight: 800;
+        font-size: 16px;
+      }
+
+      .histStatus {
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .stats {
+        display: flex;
+        gap: var(--space-sm);
+        align-items: center;
+      }
+
+      .statCard {
+        padding: var(--space-sm) var(--space);
+        border-radius: var(--radius);
+        background: var(--white);
+        color: var(--primary);
+        font-weight: 700;
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--gray-200);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .statValue {
+        font-size: 18px;
+        font-weight: 800;
+      }
+
+      .statLabel {
+        font-size: 12px;
+        color: var(--gray-500);
+        font-weight: 500;
+      }
+
+      .settings {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space);
+        margin-top: var(--space-md);
+      }
+
+      .setting-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-sm);
+      }
+
+      .setting-label {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--gray-700);
+        display: flex;
+        align-items: center;
+        gap: var(--space-xs);
+      }
+
+      .setting-description {
+        font-size: 13px;
+        color: var(--gray-500);
+        margin-top: 2px;
+      }
+
+      .row {
+        display: flex;
+        gap: var(--space-sm);
+        align-items: center;
+      }
+
+      select,
+      input[type="range"] {
+        background: var(--white);
+        border: 1px solid var(--gray-300);
+        color: var(--gray-700);
+        padding: 10px 12px;
+        border-radius: var(--radius);
+        font-size: 14px;
+        transition: all 0.2s;
+        width: 100%;
+      }
+
+      select:focus,
+      input[type="range"]:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
+
+      input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--primary);
+      }
+
+      .section-title {
+        margin: 0 0 var(--space) 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--gray-700);
+      }
+
+      .section-description {
+        font-size: 14px;
+        color: var(--gray-500);
+        margin-bottom: var(--space);
+      }
+
+      .controls-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-sm);
+      }
+
+      .dashboard-link {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-xs);
+        text-decoration: none;
+        color: var(--primary);
+        font-weight: 600;
+        padding: var(--space-sm) var(--space);
+        border-radius: var(--radius);
+        background: var(--white);
+        border: 1px solid var(--gray-200);
+        transition: all 0.2s;
+        margin-top: var(--space);
+      }
+
+      .dashboard-link:hover {
+        background: var(--gray-50);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow);
+      }
+
+      @media (max-width: 980px) {
+        .app {
+          grid-template-columns: 1fr;
+        }
+        .historyList {
+          max-height: 200px;
+        }
+        .question {
+          font-size: 24px;
+        }
+        .controls-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+        }
+      }
+
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      .fadeIn {
+        animation: fadeIn 360ms ease both;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .badge-primary {
+        background: var(--primary);
+        color: white;
+      }
+
+      .badge-success {
+        background: var(--success);
+        color: white;
+      }
+
+      .badge-error {
+        background: var(--error);
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="card">
+        <header>
+          <h1 class="app-title">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 5.5V7H9V5.5L3 7V9L9 10.5V12L5 13V15L9 13.5V18H15V13.5L19 15V13L15 12V10.5L21 9Z"
+                fill="url(#gradient)"
+              />
+              <defs>
+                <linearGradient
+                  id="gradient"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="100%"
+                >
+                  <stop offset="0%" stop-color="#2563eb" />
+                  <stop offset="100%" stop-color="#7c3aed" />
+                </linearGradient>
+              </defs>
+            </svg>
+            Kannada Voice Coach
+          </h1>
+          <p class="app-subtitle">
+            Practice pronunciation with live AI feedback
+          </p>
+        </header>
+
+        <div class="coachTop">
+          <div class="stats">
+            <div class="statCard">
+              <span class="statValue" id="statCount">0</span>
+              <span class="statLabel">Answered</span>
+            </div>
+            <div class="statCard">
+              <span class="statValue" id="statAvg">—</span>
+              <span class="statLabel">Avg Score</span>
+            </div>
+          </div>
+        </div>
+
+        <section class="questionBox fadeIn" aria-live="polite">
+          <div class="qLabel">Speak this sentence</div>
+          <div id="question" class="question">
+            Press Start to begin practice
+          </div>
+
+          <div class="controls">
+            <button id="startBtn" class="btn primary">Start Practice</button>
+            <button id="listenBtn" class="btn accent listenBtn" disabled>
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+              >
+                <path
+                  d="M8 1a5 5 0 0 0-5 5v1.5a.5.5 0 0 1-1 0V6a6 6 0 1 1 12 0v1.5a.5.5 0 0 1-1 0V6a5 5 0 0 0-5-5z"
+                />
+                <path
+                  d="M8 13A5 5 0 0 0 8 3a5 5 0 0 0 0 10zm0 1A6 6 0 0 1 8 2a6 6 0 0 1 0 12z"
+                />
+                <path
+                  d="M8 6.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM6.5 8a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0z"
+                />
+              </svg>
+              Speak (Space)
+            </button>
+            <button id="nextBtn" class="btn secondary">Skip</button>
+            <button id="resetBtn" class="btn secondary">Reset</button>
+          </div>
+
+          <div class="resultRow">
+            <div class="scoreBox">
+              <div class="qLabel">Your answer</div>
+              <div id="yourAnswer" class="statusText">—</div>
+            </div>
+
+            <div style="text-align: right">
+              <div class="qLabel">Accuracy</div>
+              <div id="score" class="scoreValue">—</div>
+              <div id="status" class="statusText">—</div>
+            </div>
+          </div>
+
+          <div class="progress-container">
+            <div class="progress-label">
+              <span>Progress</span>
+              <span id="progressPercent">0%</span>
+            </div>
+            <div class="progress" aria-hidden="true"><i id="progBar"></i></div>
+          </div>
+
+          <div class="footerNote">
+            Tip: Use Chrome on desktop for best speech recognition and
+            text-to-speech experience
+          </div>
+        </section>
+
+        <section class="settings">
+          <div class="setting-group">
+            <label class="setting-label">
+              <input id="autoSpeak" type="checkbox" checked />
+              Auto-speak questions
+            </label>
+            <div class="setting-description">
+              Speak the sentence automatically when shown
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <label class="setting-label" for="threshold">
+              Acceptance threshold: <span id="thVal">70</span>%
+            </label>
+            <input
+              id="threshold"
+              type="range"
+              min="50"
+              max="90"
+              step="1"
+              value="70"
+            />
+            <div class="setting-description">
+              Minimum accuracy percentage to mark as correct
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <label class="setting-label">
+              <input id="slowOnLow" type="checkbox" checked />
+              Slow pronunciation on low scores
+            </label>
+            <div class="setting-description">
+              If score is below threshold, play the model slowly
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <aside class="card">
+        <div class="history-header">
+          <h4 class="history-title">Session History</h4>
+          <div class="history-count">Last 10</div>
+        </div>
+
+        <div class="history">
+          <div class="historyList" id="historyList">
+            <!-- History items will be added here -->
+          </div>
+        </div>
+
+        <div style="margin-top: var(--space-lg)">
+          <h4 class="section-title">Controls</h4>
+          <div class="controls-grid">
+            <button id="toggleAuto" class="btn secondary">
+              Toggle Auto-Speak
+            </button>
+            <button id="download" class="btn secondary">Export Progress</button>
+          </div>
+        </div>
+
+        <div style="margin-top: var(--space-lg)">
+          <h4 class="section-title">Settings & Help</h4>
+          <p class="section-description">
+            Use <kbd>Spacebar</kbd> to speak. Skip to get a new question. Reset
+            clears session stats.
+          </p>
+          <a href="http://localhost:5173/dashboard" class="dashboard-link">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path
+                d="M8.5 1.5a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707l-4.146 4.147a.5.5 0 0 1-.708-.708L12.293 2H8.5z"
+              />
+              <path
+                d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"
+              />
+            </svg>
+            Go to Dashboard
+          </a>
+        </div>
+      </aside>
+    </div>
+
+    <script>
+      // All the original JavaScript code remains exactly the same
+      /* ----------------- Sentence generator (infinite) ----------------- */
+      const words = [
+        "ನಾನು",
+        "ನೀನು",
+        "ಅವನು",
+        "ಅವಳು",
+        "ನಾವು",
+        "ನೀವು",
+        "ಇದು",
+        "ಅದು",
+        "ಮೊಬೈಲ್",
+        "ಪುಸ್ತಕ",
+        "ಬಾಟಲ್",
+        "ಮನೆ",
+        "ನಾಯಿ",
+        "ಬೆಕ್ಕು",
+        "ನೀರು",
+        "ತಿಂಡಿ",
+        "ಕನ್ನಡ",
+        "ಶಾಲೆ",
+        "ಕ್ಲಾಸ್",
+        "ಊಟ",
+        "ಬಸ್ಸು",
+        "ಕಾರ್",
+        "ಮಳೆ",
+        "ಕಾಗದ",
+        "ಪೆನ್",
+        "ಬ್ಯಾಗ್",
+        "ಫೋನ್",
+        "ತುಂಬಾ",
+        "ಚನ್ನಾಗಿದೆ",
+        "ಉತ್ತರ",
+      ];
+      const templates = [
+        "{A} {B} ನೋಡುತ್ತಿದ್ದೇನೆ",
+        "{A} {B} ತೋರಿಸುತ್ತಿದ್ದೇನೆ",
+        "{A} {B} ಬೇಕು",
+        "{A} {B} ಹಿಡಿದಿದ್ದೇನೆ",
+        "{A} {B} ಇಷ್ಟಪಡುತ್ತೇನೆ",
+        "{A} {B} ಬಳಸುತ್ತಿದ್ದೇನೆ",
+        "{A} {B} ತೆಗೆದುಕೊಂಡಿದ್ದೇನೆ",
+        "{A} {B} ಯಲ್ಲಿ ಇರುತ್ತದೆ",
+      ];
+
+      function pick(arr) {
+        return arr[Math.floor(Math.random() * arr.length)];
+      }
+      function generateSentence() {
+        const A = pick(words);
+        let B = pick(words);
+        while (B === A) B = pick(words);
+        const t = pick(templates);
+        return t.replace("{A}", A).replace("{B}", B);
+      }
+
+      /* ----------------- UI refs ----------------- */
+      const startBtn = document.getElementById("startBtn");
+      const listenBtn = document.getElementById("listenBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      const resetBtn = document.getElementById("resetBtn");
+      const questionEl = document.getElementById("question");
+      const yourAnswerEl = document.getElementById("yourAnswer");
+      const scoreEl = document.getElementById("score");
+      const statusEl = document.getElementById("status");
+      const progBar = document.getElementById("progBar");
+      const historyList = document.getElementById("historyList");
+      const statCount = document.getElementById("statCount");
+      const statAvg = document.getElementById("statAvg");
+      const autoSpeakCheck = document.getElementById("autoSpeak");
+      const thresholdInput = document.getElementById("threshold");
+      const thVal = document.getElementById("thVal");
+      const slowOnLow = document.getElementById("slowOnLow");
+      const toggleAuto = document.getElementById("toggleAuto");
+      const downloadBtn = document.getElementById("download");
+      const progressPercent = document.getElementById("progressPercent");
+
+      let currentSentence = "";
+      let recognition = null;
+      let session = { count: 0, scores: [], history: [] };
+
+      /* ----------------- Levenshtein / similarity ----------------- */
+      function levenshtein(a, b) {
+        const A = Array.from(a || ""),
+          B = Array.from(b || "");
+        const m = A.length,
+          n = B.length;
+        if (m === 0) return n;
+        if (n === 0) return m;
+        const dp = Array.from({ length: m + 1 }, () =>
+          new Array(n + 1).fill(0)
+        );
+        for (let i = 0; i <= m; i++) dp[i][0] = i;
+        for (let j = 0; j <= n; j++) dp[0][j] = j;
+        for (let i = 1; i <= m; i++) {
+          for (let j = 1; j <= n; j++) {
+            const cost = A[i - 1] === B[j - 1] ? 0 : 1;
+            dp[i][j] = Math.min(
+              dp[i - 1][j] + 1,
+              dp[i][j - 1] + 1,
+              dp[i - 1][j - 1] + cost
+            );
+          }
+        }
+        return dp[m][n];
+      }
+      function similarity(a, b) {
+        a = (a || "").toString().trim().toLowerCase();
+        b = (b || "").toString().trim().toLowerCase();
+        if (a.length === 0 && b.length === 0) return 100;
+        if (a.length === 0 || b.length === 0) return 0;
+        const d = levenshtein(a, b);
+        const mx = Math.max(a.length, b.length) || 1;
+        return Math.round((1 - d / mx) * 100);
+      }
+
+      /* ----------------- Speech Recognition setup ----------------- */
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SR) {
+        recognition = new SR();
+        recognition.lang = "kn-IN";
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+      } else {
+        alert(
+          "SpeechRecognition not supported. Use Chrome for best experience."
+        );
+        listenBtn.disabled = true;
+      }
+
+      /* ----------------- TTS helpers ----------------- */
+      function speakText(text, opts = { rate: 0.95, pitch: 1.0, slow: false }) {
+        if (!("speechSynthesis" in window)) return;
+        speechSynthesis.cancel();
+        if (opts.slow) {
+          // word by word for clarity
+          const words = text.split(/\s+/).filter(Boolean);
+          (async () => {
+            for (const w of words) {
+              const u = new SpeechSynthesisUtterance(w);
+              u.lang = "kn-IN";
+              u.rate = Math.max(0.45, opts.rate - 0.15);
+              u.pitch = opts.pitch;
+              const kn = (speechSynthesis.getVoices() || []).find(
+                (v) => v.lang && v.lang.toLowerCase().startsWith("kn")
+              );
+              if (kn) u.voice = kn;
+              speechSynthesis.speak(u);
+              await new Promise((r) => {
+                u.onend = r;
+                u.onerror = r;
+              });
+              await new Promise((r) => setTimeout(r, 140));
+            }
+          })();
+        } else {
+          const u = new SpeechSynthesisUtterance(text);
+          u.lang = "kn-IN";
+          u.rate = opts.rate;
+          u.pitch = opts.pitch;
+          const kn = (speechSynthesis.getVoices() || []).find(
+            (v) => v.lang && v.lang.toLowerCase().startsWith("kn")
+          );
+          if (kn) u.voice = kn;
+          speechSynthesis.speak(u);
+        }
+      }
+
+      /* ----------------- Core flow ----------------- */
+      function newQuestion() {
+        currentSentence = generateSentence();
+        questionEl.textContent = currentSentence;
+        yourAnswerEl.textContent = "—";
+        scoreEl.textContent = "—";
+        statusEl.textContent = "—";
+        progBar.style.width = "0%";
+        progressPercent.textContent = "0%";
+        if (autoSpeakCheck.checked)
+          speakText(currentSentence, { rate: 0.95, pitch: 1.05 });
+      }
+      startBtn.addEventListener("click", () => {
+        session = { count: 0, scores: [], history: [] };
+        updateStats();
+        newQuestion();
+        listenBtn.disabled = false;
+        listenBtn.classList.add("pulse");
+      });
+      nextBtn.addEventListener("click", () => newQuestion());
+      resetBtn.addEventListener("click", () => {
+        session = { count: 0, scores: [], history: [] };
+        historyList.innerHTML = "";
+        updateStats();
+        questionEl.textContent = "Press Start to begin";
+        yourAnswerEl.textContent = "—";
+        scoreEl.textContent = "—";
+        statusEl.textContent = "—";
+        progBar.style.width = "0%";
+        progressPercent.textContent = "0%";
+      });
+
+      /* recognition event flow */
+      if (recognition) {
+        recognition.onresult = (e) => {
+          const spoken = e.results[0][0].transcript || "";
+          handleResult(spoken);
+        };
+        recognition.onerror = (e) => {
+          console.error("ASR error", e);
+          statusEl.textContent = "Listening error. Try again.";
+        };
+        recognition.onend = () => {
+          listenBtn.classList.remove("listening");
+        };
+      }
+
+      /* clicking listen */
+      listenBtn.addEventListener("click", () => {
+        if (!recognition) return;
+        // visual
+        listenBtn.classList.add("listening");
+        listenBtn.textContent = "Listening…";
+        try {
+          recognition.start();
+        } catch (e) {
+          console.warn(e);
+        }
+      });
+
+      /* keyboard shortcut space -> speak */
+      window.addEventListener("keydown", (e) => {
+        if (e.code === "Space") {
+          e.preventDefault();
+          if (listenBtn.disabled) return;
+          listenBtn.click();
+        }
+      });
+
+      /* handle ASR result */
+      function handleResult(spoken) {
+        listenBtn.textContent = "Speak (Space)";
+        yourAnswerEl.textContent = spoken;
+        const acc = similarity(spoken, currentSentence);
+        scoreEl.textContent = acc + "%";
+        progBar.style.width = acc + "%";
+        progressPercent.textContent = acc + "%";
+        // threshold
+        const threshold = Number(thresholdInput.value || 70);
+        const correct = acc >= threshold;
+        if (correct) {
+          statusEl.innerHTML = `<span class="statusCorrect">✔ Correct</span>`;
+          // praise TTS
+          speakText("ಚನ್ನಾಗಿದೆ! ಮತ್ತು ಮುಂದುವರೆಯಿರಿ", {
+            rate: 0.95,
+            pitch: 1.05,
+          });
+        } else {
+          statusEl.innerHTML = `<span class="statusWrong">✘ Incorrect</span>`;
+          if (slowOnLow.checked)
+            speakText(currentSentence, { rate: 0.8, pitch: 1.0, slow: true });
+          else speakText(currentSentence, { rate: 0.85, pitch: 1.0 });
+        }
+        // record
+        session.count++;
+        session.scores.push(acc);
+        session.history.unshift({
+          q: currentSentence,
+          spoken,
+          acc,
+          correct,
+          ts: new Date().toISOString(),
+        });
+        if (session.history.length > 10) session.history.pop();
+        updateHistory();
+        updateStats();
+        // new question after short delay
+        setTimeout(() => newQuestion(), 1700);
+      }
+
+      /* update history UI */
+      function updateHistory() {
+        historyList.innerHTML = "";
+        session.history.forEach((h) => {
+          const div = document.createElement("div");
+          div.className = "histItem";
+          div.innerHTML = `
+            <div class="histQuestion">${h.q}</div>
+            <div class="histStats">
+              <div class="histScore">${h.acc}%</div>
+              <div class="histStatus" style="color:${
+                h.correct ? "var(--success)" : "var(--error)"
+              }">
+                ${h.correct ? "Correct" : "Incorrect"}
+              </div>
+            </div>
+          `;
+          historyList.appendChild(div);
+        });
+      }
+
+      /* update stats */
+      function updateStats() {
+        statCount.textContent = session.count || 0;
+        const avg = session.scores.length
+          ? Math.round(
+              session.scores.reduce((a, b) => a + b, 0) / session.scores.length
+            )
+          : "—";
+        statAvg.textContent = avg === "—" ? "—" : avg;
+        statAvg.parentElement.title = "Average accuracy";
+      }
+
+      /* threshold UI update */
+      thresholdInput.addEventListener(
+        "input",
+        () => (thVal.textContent = thresholdInput.value)
+      );
+
+      /* toggle auto speak */
+      toggleAuto.addEventListener(
+        "click",
+        () => (autoSpeakCheck.checked = !autoSpeakCheck.checked)
+      );
+
+      /* export progress */
+      downloadBtn.addEventListener("click", () => {
+        const data = { session, exportedAt: new Date().toISOString() };
+        const a = document.createElement("a");
+        const blob = new Blob([JSON.stringify(data, null, 2)], {
+          type: "application/json",
+        });
+        a.href = URL.createObjectURL(blob);
+        a.download = "kannada-voice-coach-session.json";
+        a.click();
+      });
+
+      /* initialize some defaults */
+      thresholdInput.value = 70;
+      thVal.textContent = 70;
+      autoSpeakCheck.checked = true;
+      slowOnLow.checked = true;
+
+      /* auto-populate voices on first gesture (some browsers need it) */
+      window.speechSynthesis.onvoiceschanged = () => {
+        /* no-op to warm voices */
+      };
+    </script>
+  </body>
+</html>

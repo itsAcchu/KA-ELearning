@@ -22,6 +22,7 @@ import teacherRoutes from "./routes/teacher.routes.js";
 import voiceRoutes from "./routes/voice.routes.js";
 import visionRoutes from "./routes/vision.routes.js";
 import storyRoutes from "./routes/story.routes.js";
+import voiceCoachRoutes from "./routes/voiceCoach.routes.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -57,6 +58,7 @@ app.use("/api/teacher", teacherRoutes);
 app.use("/api/voice", voiceRoutes);
 app.use("/api/vision", visionRoutes);
 app.use("/api/stories", storyRoutes);
+app.use('/api/voice-coach', voiceCoachRoutes);
 
 // Health check endpoint
 app.get("/health", (req, res) => {

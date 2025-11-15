@@ -17,7 +17,7 @@ export default function Header() {
         <div className="flex items-center justify-between h-16">
           <Link to="/dashboard" className="flex items-center gap-2">
             <span className="text-2xl">🐘</span>
-            <span className="font-display font-bold text-xl text-primary-600">ಕನ್ನಡ ಕಲಿಕೆ</span>
+            <span className="font-display font-bold text-xl text-primary-600">NAMMA AI</span>
           </Link>
           
           <div className="flex items-center gap-4">

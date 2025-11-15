@@ -1,429 +1,408 @@
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
 import {
-  ArrowLeft,
   Mic,
+  MicOff,
   Volume2,
   CheckCircle,
   XCircle,
-  Award,
+  SkipForward,
+  RefreshCw,
+  Brain,
+  Trophy,
+  Sparkles,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import Card from "../components/ui/Card";
-import Button from "../components/ui/Button";
+import axios from "axios";
+import { io } from "socket.io-client";
+
+// Connect Socket.IO client (optional for battles)
+const socket = io("http://localhost:5000");
 
 export default function VoiceCoach() {
-  const navigate = useNavigate();
-  const [exercises, setExercises] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [score, setScore] = useState(0);
+  const [transcript, setTranscript] = useState("");
+  const [targetPhrase, setTargetPhrase] = useState(null);
+  const [analysis, setAnalysis] = useState(null);
+  const [analyzing, setAnalyzing] = useState(false);
 
-  const mediaRecorderRef = useRef(null);
-  const audioChunksRef = useRef([]);
-  const recordingTimeoutRef = useRef(null);
+  // Quiz state
+  const [quizStarted, setQuizStarted] = useState(false);
+  const [quizQuestions, setQuizQuestions] = useState([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [quizCompleted, setQuizCompleted] = useState(false);
+  const [questionResults, setQuestionResults] = useState([]);
 
-  const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+  const recognitionRef = useRef(null);
 
+  // Initialize Speech Recognition
   useEffect(() => {
-    fetchExercises();
+    if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
+      alert("Speech recognition not supported in this browser. Please use Chrome.");
+      return;
+    }
 
-    // Cleanup on unmount
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognitionRef.current = new SpeechRecognition();
+    recognitionRef.current.continuous = false;
+    recognitionRef.current.interimResults = false;
+    recognitionRef.current.lang = "kn-IN";
+
+    recognitionRef.current.onresult = (event) => {
+      const transcript = event.results[0][0].transcript;
+      const confidence = event.results[0][0].confidence;
+      setTranscript(transcript);
+      analyzePronunciation(transcript, confidence);
+    };
+
+    recognitionRef.current.onerror = (event) => {
+      console.error("Speech recognition error:", event.error);
+      setIsRecording(false);
+      if (event.error === "no-speech") alert("No speech detected. Try again.");
+    };
+
+    recognitionRef.current.onend = () => setIsRecording(false);
+
     return () => {
-      if (recordingTimeoutRef.current) {
-        clearTimeout(recordingTimeoutRef.current);
-      }
+      if (recognitionRef.current) recognitionRef.current.stop();
     };
   }, []);
 
-  const fetchExercises = async () => {
+  // Start Quiz
+  const startQuiz = async () => {
     try {
-      const token = localStorage.getItem("kannada_auth_token");
-      const response = await fetch(`${API_BASE_URL}/voice/exercises`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Loaded exercises:", data);
-        setExercises(data);
-      } else {
-        console.error("Failed to fetch exercises:", response.status);
+      const questions = [];
+      for (let i = 0; i < 5; i++) {
+        const { data } = await axios.get(
+          "http://localhost:5000/api/voice-coach/phrase?difficulty=beginner"
+        );
+        questions.push(data.phrase);
       }
+      setQuizQuestions(questions);
+      setTargetPhrase(questions[0]);
+      setQuizStarted(true);
+      setCurrentQuestionIndex(0);
+      setCorrectAnswers(0);
+      setQuizCompleted(false);
+      setQuestionResults([]);
+      setAnalysis(null);
+      setTranscript("");
     } catch (error) {
-      console.error("Failed to fetch exercises:", error);
+      console.error("Error starting quiz:", error);
+      alert("Failed to start quiz. Please try again.");
     }
   };
 
-  const startRecording = async () => {
-    try {
-      console.log("Starting recording...");
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          sampleRate: 44100,
-        },
-      });
-
-      mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: "audio/webm",
-      });
-      audioChunksRef.current = [];
-
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-          console.log("Audio chunk received:", event.data.size, "bytes");
-        }
-      };
-
-      mediaRecorderRef.current.onstop = async () => {
-        console.log(
-          "Recording stopped, chunks:",
-          audioChunksRef.current.length
-        );
-        const audioBlob = new Blob(audioChunksRef.current, {
-          type: "audio/webm",
-        });
-        console.log("Audio blob created:", audioBlob.size, "bytes");
-
-        if (audioBlob.size > 0) {
-          await checkPronunciation(audioBlob);
-        } else {
-          setResult({
-            isCorrect: false,
-            score: 0,
-            feedback: "No audio recorded. Please try again and speak clearly.",
-          });
-        }
-
-        stream.getTracks().forEach((track) => track.stop());
-      };
-
-      mediaRecorderRef.current.start();
-      setIsRecording(true);
-      setResult(null);
-
-      // Auto-stop after 3 seconds
-      recordingTimeoutRef.current = setTimeout(() => {
-        console.log("Auto-stopping recording...");
-        stopRecording();
-      }, 3000);
-    } catch (error) {
-      console.error("Failed to start recording:", error);
-      alert(
-        "Microphone access denied. Please allow microphone access in your browser settings."
-      );
-    }
+  const startRecording = () => {
+    setTranscript("");
+    setAnalysis(null);
+    setIsRecording(true);
+    if (recognitionRef.current) recognitionRef.current.start();
   };
 
   const stopRecording = () => {
-    if (
-      mediaRecorderRef.current &&
-      mediaRecorderRef.current.state !== "inactive"
-    ) {
-      console.log("Stopping recording manually...");
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-
-      if (recordingTimeoutRef.current) {
-        clearTimeout(recordingTimeoutRef.current);
-      }
-    }
+    setIsRecording(false);
+    if (recognitionRef.current) recognitionRef.current.stop();
   };
 
-  const checkPronunciation = async (audioBlob) => {
-    setLoading(true);
-    console.log("Checking pronunciation...", { audioSize: audioBlob.size });
-
+  // Analyze pronunciation via backend
+  const analyzePronunciation = async (userTranscript, confidence) => {
+    if (!targetPhrase) return;
     try {
-      const token = localStorage.getItem("kannada_auth_token");
-      const formData = new FormData();
-
-      // Create a proper File object for the audio
-      const audioFile = new File([audioBlob], "recording.webm", {
-        type: "audio/webm",
-        lastModified: Date.now(),
+      setAnalyzing(true);
+      const { data } = await axios.post("http://localhost:5000/api/voice-coach/analyze", {
+        userTranscript,
+        confidence,
+        targetPhrase: targetPhrase.kannada,
+        currentXP: 0,
+        currentLevel: 1,
       });
 
-      formData.append("audio", audioFile, "recording.webm");
-      formData.append("expectedWord", exercises[currentIndex].word);
-      formData.append(
-        "expectedTranslation",
-        exercises[currentIndex].translation
-      );
+      const result = data.analysis;
+      setAnalysis(result);
 
-      console.log("Sending to backend:", {
-        expectedWord: exercises[currentIndex].word,
-        expectedTranslation: exercises[currentIndex].translation,
-        audioSize: audioBlob.size,
-      });
+      const isCorrect = result.accuracyScore >= 70;
 
-      const response = await fetch(`${API_BASE_URL}/voice/check`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          // Don't set Content-Type - let browser set it with boundary
+      setQuestionResults(prev => [
+        ...prev,
+        {
+          question: targetPhrase.kannada,
+          userAnswer: userTranscript,
+          score: result.accuracyScore,
+          isCorrect,
         },
-        body: formData,
-      });
+      ]);
 
-      const data = await response.json();
-      console.log("Backend response:", data);
-
-      if (response.ok) {
-        setResult(data);
-
-        if (data.isCorrect) {
-          setScore((prevScore) => prevScore + data.score);
-        }
-      } else {
-        console.error("Backend error:", data);
-        setResult({
-          isCorrect: false,
-          score: 0,
-          feedback:
-            data.message ||
-            data.error ||
-            "Failed to process audio. Please try again.",
-          error: data.error,
-        });
-      }
+      if (isCorrect) setCorrectAnswers(prev => prev + 1);
     } catch (error) {
-      console.error("Network error:", error);
-      setResult({
-        isCorrect: false,
-        score: 0,
-        feedback:
-          "Network error. Please check if the backend is running at " +
-          API_BASE_URL,
-        error: error.message,
-      });
+      console.error("Error analyzing pronunciation:", error);
+      alert("Failed to analyze pronunciation. Try again.");
     } finally {
-      setLoading(false);
+      setAnalyzing(false);
     }
   };
 
-  const handleNext = () => {
-    if (currentIndex < exercises.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-      setResult(null);
+  const nextQuestion = () => {
+    const nextIndex = currentQuestionIndex + 1;
+    if (nextIndex >= 5) {
+      setQuizCompleted(true);
     } else {
-      navigate("/dashboard", {
-        state: {
-          voiceScore: score,
-          voiceCompleted: true,
-        },
-      });
+      setCurrentQuestionIndex(nextIndex);
+      setTargetPhrase(quizQuestions[nextIndex]);
+      setTranscript("");
+      setAnalysis(null);
     }
   };
 
-  const speak = (text) => {
-    if ("speechSynthesis" in window) {
-      // Stop any ongoing speech
-      window.speechSynthesis.cancel();
+  const skipQuestion = () => {
+    setQuestionResults(prev => [
+      ...prev,
+      { question: targetPhrase.kannada, userAnswer: "Skipped", score: 0, isCorrect: false },
+    ]);
+    nextQuestion();
+  };
 
+  const restartQuiz = () => {
+    setQuizStarted(false);
+    setQuizCompleted(false);
+    setQuizQuestions([]);
+    setCurrentQuestionIndex(0);
+    setCorrectAnswers(0);
+    setTargetPhrase(null);
+    setTranscript("");
+    setAnalysis(null);
+    setQuestionResults([]);
+  };
+
+  const speakKannada = (text) => {
+    if ("speechSynthesis" in window) {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "kn-IN";
-      utterance.rate = 0.8; // Slower for learning
-      utterance.pitch = 1;
-
+      utterance.rate = 0.7;
       window.speechSynthesis.speak(utterance);
-    } else {
-      console.warn("Speech synthesis not supported");
     }
   };
 
-  if (exercises.length === 0) {
+  const getScoreColor = (score) => {
+    if (score >= 80) return "text-green-600 bg-green-50";
+    if (score >= 60) return "text-yellow-600 bg-yellow-50";
+    return "text-red-600 bg-red-50";
+  };
+
+  const getScoreEmoji = (score) => {
+    if (score >= 80) return "🎉";
+    if (score >= 60) return "👍";
+    return "💪";
+  };
+
+  // ----------------- RENDER -----------------
+  if (!quizStarted) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading exercises...</p>
-        </div>
+      <div className="min-h-screen bg-gradient-to-br from-purple-700 via-purple-900 to-teal-700 flex items-center justify-center p-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white rounded-3xl shadow-2xl p-12 max-w-2xl w-full text-center"
+        >
+          <Brain className="w-24 h-24 mx-auto mb-6 text-purple-600" />
+          <h1 className="text-4xl font-bold text-gray-800 mb-4">Kannada Pronunciation Quiz</h1>
+          <p className="text-xl text-gray-600 mb-8">Test your Kannada pronunciation skills with 5 random questions!</p>
+          <button
+            onClick={startQuiz}
+            className="px-12 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold text-xl hover:shadow-lg transition-all"
+          >
+            Start Quiz
+          </button>
+        </motion.div>
       </div>
     );
   }
 
-  const currentExercise = exercises[currentIndex];
-  const progress = ((currentIndex + 1) / exercises.length) * 100;
-
-  return (
-    <div className="max-w-4xl mx-auto p-6">
-      <button
-        onClick={() => navigate("/dashboard")}
-        className="flex items-center gap-2 text-gray-600 hover:text-primary-600 mb-6 transition-colors"
-      >
-        <ArrowLeft className="w-5 h-5" />
-        Back to Dashboard
-      </button>
-
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-2xl font-bold">Voice Coach</h2>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Award className="w-5 h-5 text-secondary-600" />
-              <span className="font-bold">{score} points</span>
-            </div>
-            <span className="text-sm text-gray-600">
-              {currentIndex + 1} / {exercises.length}
-            </span>
-          </div>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${progress}%` }}
-            className="bg-gradient-to-r from-accent-purple to-accent-pink h-2 rounded-full"
-            transition={{ duration: 0.3 }}
-          />
-        </div>
-      </div>
-
-      {/* Main Card */}
-      <Card className="mb-6">
-        <div className="text-center mb-8">
-          <div
-            className={`inline-block px-4 py-1 rounded-full text-sm font-medium mb-4 ${
-              currentExercise.difficulty === "easy"
-                ? "bg-success/20 text-success"
-                : currentExercise.difficulty === "medium"
-                ? "bg-secondary-100 text-secondary-700"
-                : "bg-error/20 text-error"
-            }`}
-          >
-            {currentExercise.difficulty.toUpperCase()}
-          </div>
-
-          <h3 className="text-6xl font-bold text-primary-600 mb-4">
-            {currentExercise.word}
-          </h3>
-
-          <div className="flex items-center justify-center gap-4 mb-2">
-            <p className="text-2xl text-gray-700">
-              {currentExercise.translation}
+  if (quizCompleted) {
+    const percentage = Math.round((correctAnswers / 5) * 100);
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-700 via-purple-900 to-teal-700 flex items-center justify-center p-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white rounded-3xl shadow-2xl p-12 max-w-3xl w-full"
+        >
+          <div className="text-center mb-8">
+            <Trophy className="w-32 h-32 mx-auto mb-6 text-yellow-500" />
+            <h1 className="text-5xl font-bold text-gray-800 mb-4">Quiz Complete! 🎉</h1>
+            <div className="text-6xl font-bold text-purple-600 mb-4">{correctAnswers} / 5</div>
+            <p className="text-2xl text-gray-600">
+              You got {correctAnswers} correct out of 5 questions ({percentage}%)
             </p>
-            <button
-              onClick={() => speak(currentExercise.word)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              aria-label="Listen to pronunciation"
-            >
-              <Volume2 className="w-6 h-6 text-primary-600" />
-            </button>
           </div>
 
-          <p className="text-gray-600">Meaning: {currentExercise.meaning}</p>
-        </div>
-
-        {/* Recording Button */}
-        <div className="flex flex-col items-center gap-4">
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            whileHover={{ scale: 1.05 }}
-            onClick={isRecording ? stopRecording : startRecording}
-            disabled={loading}
-            className={`w-32 h-32 rounded-full flex items-center justify-center transition-all shadow-lg ${
-              isRecording
-                ? "bg-error animate-pulse"
-                : loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-gradient-to-br from-accent-purple to-accent-pink hover:shadow-xl"
-            }`}
-          >
-            <Mic className="w-16 h-16 text-white" />
-          </motion.button>
-
-          <p className="text-sm text-gray-600 font-medium">
-            {isRecording
-              ? "🔴 Recording... (Auto-stops in 3s)"
-              : loading
-              ? "⏳ Analyzing your pronunciation..."
-              : "🎤 Tap to record your pronunciation"}
-          </p>
-        </div>
-
-        {/* Result */}
-        <AnimatePresence>
-          {result && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.3 }}
-              className={`mt-6 p-6 rounded-xl ${
-                result.isCorrect
-                  ? "bg-success/10 border-2 border-success"
-                  : "bg-error/10 border-2 border-error"
-              }`}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  {result.isCorrect ? (
-                    <CheckCircle className="w-8 h-8 text-success flex-shrink-0" />
-                  ) : (
-                    <XCircle className="w-8 h-8 text-error flex-shrink-0" />
-                  )}
+          <div className="mb-8 space-y-4">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Results:</h2>
+            {questionResults.map((result, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className={`p-4 rounded-xl border-2 ${
+                  result.isCorrect ? "bg-green-50 border-green-300" : "bg-red-50 border-red-300"
+                }`}
+              >
+                <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="font-bold text-lg">
-                      {result.isCorrect
-                        ? "✨ Excellent!"
-                        : "💪 Keep Practicing!"}
-                    </h4>
-                    {result.transcription && (
-                      <p className="text-sm text-gray-600">
-                        You said: "
-                        <span className="font-medium">
-                          {result.transcription}
-                        </span>
-                        "
-                      </p>
+                    <div className="font-bold text-gray-800">
+                      Question {index + 1}: {result.question}
+                    </div>
+                    <div className="text-sm text-gray-600">Your answer: {result.userAnswer}</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {result.isCorrect ? (
+                      <CheckCircle className="w-8 h-8 text-green-600" />
+                    ) : (
+                      <XCircle className="w-8 h-8 text-red-600" />
                     )}
+                    <span className="text-2xl font-bold">{result.score}%</span>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-3xl font-bold">{result.score}/10</div>
-                  <div className="text-sm text-gray-600">Accuracy</div>
-                </div>
-              </div>
+              </motion.div>
+            ))}
+          </div>
 
-              <p className="text-gray-700 mb-4">{result.feedback}</p>
+          <button
+            onClick={restartQuiz}
+            className="w-full px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold text-xl hover:shadow-lg transition-all"
+          >
+            <RefreshCw className="inline w-6 h-6 mr-2" />
+            Try Again
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
 
-              {result.error && (
-                <p className="text-xs text-gray-500 mb-4">
-                  Debug: {result.error}
-                </p>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-700 via-purple-900 to-teal-700 p-6">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-3xl shadow-2xl p-8 mb-6"
+        >
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800">Kannada Pronunciation Quiz</h1>
+              <p className="text-gray-600">Question {currentQuestionIndex + 1} of 5</p>
+            </div>
+            <div className="text-center">
+              <div className="text-5xl font-bold text-purple-600">{correctAnswers}</div>
+              <div className="text-sm text-gray-600">Correct Answers</div>
+            </div>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="mt-6 bg-gray-200 rounded-full h-4 overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${((currentQuestionIndex + 1) / 5) * 100}%` }}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 h-full"
+            />
+          </div>
+        </motion.div>
+
+        {/* Question Card */}
+        {targetPhrase && (
+          <motion.div
+            key={currentQuestionIndex}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-3xl shadow-2xl p-8 mb-6"
+          >
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">Say this in Kannada:</h2>
+              <div className="text-6xl font-bold text-purple-600 mb-4">{targetPhrase.kannada}</div>
+              <div className="text-2xl text-gray-600 mb-2">{targetPhrase.english}</div>
+              <div className="text-xl text-gray-500">Pronunciation: {targetPhrase.pronunciation}</div>
+              <button
+                onClick={() => speakKannada(targetPhrase.kannada)}
+                className="mt-4 px-6 py-2 bg-purple-100 text-purple-700 rounded-xl font-semibold hover:bg-purple-200 transition-all"
+              >
+                <Volume2 className="inline w-5 h-5 mr-2" /> Listen
+              </button>
+            </div>
+
+            {/* Recording Controls */}
+            <div className="flex gap-4 justify-center mb-6">
+              <button
+                onClick={isRecording ? stopRecording : startRecording}
+                disabled={analyzing}
+                className={`px-8 py-4 rounded-xl font-bold text-lg transition-all ${
+                  isRecording
+                    ? "bg-red-600 hover:bg-red-700 text-white"
+                    : "bg-gradient-to-r from-purple-600 to-pink-600 hover:shadow-lg text-white"
+                } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                {isRecording ? <><MicOff className="inline w-6 h-6 mr-2" /> Stop Recording</> :
+                <><Mic className="inline w-6 h-6 mr-2" /> Start Recording</>}
+              </button>
+
+              <button
+                onClick={skipQuestion}
+                disabled={analyzing}
+                className="px-8 py-4 bg-gray-200 text-gray-700 rounded-xl font-bold text-lg hover:bg-gray-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <SkipForward className="inline w-6 h-6 mr-2" /> Skip
+              </button>
+            </div>
+
+            {/* Transcript */}
+            {transcript && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="bg-gray-50 rounded-xl p-4 mb-6">
+                <div className="text-sm text-gray-600 mb-1">You said:</div>
+                <div className="text-2xl font-bold text-gray-800">{transcript}</div>
+              </motion.div>
+            )}
+
+            {/* Analysis Result */}
+            <AnimatePresence>
+              {analysis && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="space-y-4"
+                >
+                  <div className={`p-6 rounded-xl ${getScoreColor(analysis.accuracyScore)}`}>
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="text-2xl font-bold">
+                        Accuracy Score: {analysis.accuracyScore}% {getScoreEmoji(analysis.accuracyScore)}
+                      </div>
+                      {analysis.accuracyScore >= 70 ?
+                        <CheckCircle className="w-12 h-12 text-green-600" /> :
+                        <XCircle className="w-12 h-12 text-red-600" />}
+                    </div>
+                    <div className="text-lg">{analysis.analysis.explanation}</div>
+                  </div>
+
+                  <button
+                    onClick={nextQuestion}
+                    className="w-full px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold text-xl hover:shadow-lg transition-all"
+                  >
+                    Next Question →
+                  </button>
+                </motion.div>
               )}
+            </AnimatePresence>
 
-              <Button onClick={handleNext} className="w-full">
-                {currentIndex < exercises.length - 1
-                  ? "Next Word →"
-                  : "Finish 🎉"}
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </Card>
-
-      {/* Tips */}
-      <Card className="bg-primary-50 border-primary-200">
-        <h4 className="font-bold mb-2">💡 Tips for Better Pronunciation:</h4>
-        <ul className="text-sm text-gray-700 space-y-1">
-          <li>- Speak clearly and at a normal pace</li>
-          <li>- Listen to the example first by clicking the speaker icon</li>
-          <li>- Practice in a quiet environment</li>
-          <li>- Hold your microphone close to your mouth</li>
-          <li>- Try to match the pronunciation you hear</li>
-        </ul>
-      </Card>
+            {analyzing && (
+              <div className="text-center text-purple-600 font-semibold">
+                <Sparkles className="inline w-6 h-6 mr-2 animate-spin" />
+                Analyzing your pronunciation...
+              </div>
+            )}
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 }

@@ -12,7 +12,7 @@ import Learn from "./pages/Learn";
 import Lesson from "./pages/Lesson";
 import Dashboard from "./pages/Dashboard";
 import Chatbot from "./pages/Chatbot";
-import VoiceCoach from "./pages/VoiceCoachEnhanced";
+import VoiceCoach from "./pages/VoiceCoach";
 import ARScanner from "./pages/ARScanner";
 import Stories from "./pages/Stories";
 import StoryReader from "./pages/StoryReader";
@@ -31,7 +31,7 @@ function App() {
 
   const ProtectedRoute = ({ children }) => {
     if (!isAuthenticated) {
-      return <Navigate to="/login" replace />;
+      return <Navigate to="/login" />;
     }
     return children;
   };
@@ -44,124 +44,36 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
 
-        {/* Protected Routes with Layout */}
-        <Route element={<MainLayout />}>
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/learn"
-            element={
-              <ProtectedRoute>
-                <Learn />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/lesson/:id"
-            element={
-              <ProtectedRoute>
-                <Lesson />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/chatbot"
-            element={
-              <ProtectedRoute>
-                <Chatbot />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/voice-coach"
-            element={
-              <ProtectedRoute>
-                <VoiceCoach />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/ar-scanner"
-            element={
-              <ProtectedRoute>
-                <ARScanner />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/stories"
-            element={
-              <ProtectedRoute>
-                <Stories />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/story/:id"
-            element={
-              <ProtectedRoute>
-                <StoryReader />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/achievements"
-            element={
-              <ProtectedRoute>
-                <Achievements />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/leaderboard"
-            element={
-              <ProtectedRoute>
-                <Leaderboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/voice-guru"
-            element={
-              <ProtectedRoute>
-                <VoiceGuru />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/battle-royale"
-            element={
-              <ProtectedRoute>
-                <BattleRoyale />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/teaching-marketplace"
-            element={
-              <ProtectedRoute>
-                <TeachingMarketplace />
-              </ProtectedRoute>
-            }
-          />
+        {/* Public Stories */}
+        <Route path="/stories" element={<Stories />} />
+        <Route path="/stories/:id" element={<StoryReader />} />
+
+        {/* Protected Routes */}
+        <Route
+          path="/*"
+          element={
+            <ProtectedRoute>
+              <MainLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="learn" element={<Learn />} />
+          <Route path="lesson/:lessonId" element={<Lesson />} />
+          <Route path="chatbot" element={<Chatbot />} />
+          <Route path="voice-coach" element={<VoiceCoach />} />
+          <Route path="ar-scanner" element={<ARScanner />} />
+          <Route path="achievements" element={<Achievements />} />
+          <Route path="leaderboard" element={<Leaderboard />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="voice-guru" element={<VoiceGuru />} />
+          <Route path="battle" element={<BattleRoyale />} />
+          <Route path="marketplace" element={<TeachingMarketplace />} />
+         
         </Route>
 
-        {/* Fallback Route */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </AnimatePresence>
   );
