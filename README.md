@@ -5,7 +5,6 @@ A modern, AI-powered Kannada learning platform with gamification, voice recognit
 ---
 
 ## 🖼️ Screenshots
-(Add these images inside `/screenshots` folder)
 
 - **Dashboard**  
   ![Dashboard](./screenshots/dashboard.jpg)
@@ -216,3 +215,4 @@ Email — your.email@example.com
 
 ## ⭐ Support
 If this project helped you, please ⭐ the repo!
+
