@@ -2,8 +2,6 @@
 
 <div align="center">
 
-[Kannada Quest Banner](./screenshots/banner.png)
-
 **A modern, gamified Kannada learning platform powered by AI**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -606,4 +604,5 @@ If you encounter any issues or have questions:
 [Back to Top](#kannada-quest---ai-powered-language-learning-platform)
 
 </div>
+
 
