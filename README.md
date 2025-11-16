@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Kannada Quest Banner](./screenshots/banner.png)
+[Kannada Quest Banner](./screenshots/banner.png)
 
 **A modern, gamified Kannada learning platform powered by AI**
 
@@ -606,3 +606,4 @@ If you encounter any issues or have questions:
 [Back to Top](#kannada-quest---ai-powered-language-learning-platform)
 
 </div>
+
