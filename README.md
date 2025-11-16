@@ -208,11 +208,12 @@ MIT License
 
 ## 👨‍💻 Author
 **Your Name**  
-GitHub — https://github.com/yourusername  
-Email — your.email@example.com  
+GitHub — https://github.com/itsAcchu  
+Email — harishreddy.workmail@gmail.com  
 
 ---
 
 ## ⭐ Support
 If this project helped you, please ⭐ the repo!
+
 
