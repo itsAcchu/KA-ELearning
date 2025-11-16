@@ -213,7 +213,18 @@ Email — harishreddy.workmail@gmail.com
 
 ---
 
+## 👥 Team Contribution
+Team Name: Quantum X
+This project is built and maintained by the Quantum X team.
+
+Team Members
+Harish Reddy 
+Sai Prasanth Reddy 
+Lokesh L 
+Syed Furqan 
+
 ## ⭐ Support
 If this project helped you, please ⭐ the repo!
+
 
 
